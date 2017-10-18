@@ -10,6 +10,7 @@ class Sapper {
     this._countMine = 10;
     this._countCells = this._size.width * this._size.height;
     this._checkCount = 0;
+    this._userMineCount = 0;
 
     this.start.call(this);
   }
@@ -29,9 +30,14 @@ class Sapper {
         cells[i].userMine = 
         cells[i].userMark = 
         false;
+      
+      cells[i].dataset.count = null;
+
       cells[i].style.backgroundColor = '';
+      cells[i].classList.remove('opened');
       cells[i].innerHTML = '';
     }
+    this._checkCount = this._userMineCount = 0;
     this._setMines();
   }
 
@@ -123,8 +129,13 @@ class Sapper {
           
           if (target.ismine) {
             target.style.backgroundColor = 'red';
-            alert('���� ��������!');
-            this.restart();
+            target.innerHTML = '&#128163;';
+            
+            setTimeout(() => {
+                alert('Игра окончена!');
+                this.restart();
+            }, 300);
+            
             return;
           }
           
@@ -150,6 +161,28 @@ class Sapper {
         target = target.parentNode;
       }
     }
+    
+    this._sapperTable.onmousedown = (e) => {
+        if (this._oneClick) {
+            let target = e.target;
+      
+            while (target !== this._sapperTable) {
+                if (target.tagName == 'TD' && target.dataset.count) {
+                  e.preventDefault();
+                  this._checkAroundCells(target, this._HighlightAround);
+                  return;
+                }
+                
+                target = target.parentNode;
+            }
+            this._oneClick = false;
+        } else {
+            this._oneClick = true;
+        }
+    }
+    this._sapperTable.onmouseup = (e) => {
+        this._oneClick = false;
+    }
   }
   
   _checkCell(td) {
@@ -164,10 +197,15 @@ class Sapper {
     
     td.classList.add('opened');
     this._addIsCheck(td);
-    this._checkStopGame(td);
     
     this._checkAroundCells(td, this._checkCell);    
   }
+  
+    _HighlightAround(td) {
+       if (!td.isCheck) {
+           td.backgroundColor = 'yellow';
+       }
+    }
   
   _addIsCheck(td) {
       td.isCheck = true;
@@ -179,25 +217,32 @@ class Sapper {
       this._checkCount--;
   }
   
+  _addUserMineCount(td) {
+      td.userMine = true;
+      this._userMineCount++;
+      this._checkStopGame(td);
+  }
+  
+  _removeUserMineCount(td) {
+      td.userMine = false;
+      this._userMineCount--;
+  }
+  
   _setMark(td) {
     if (td.userMine) {
-        
         td.innerHTML = '&#63;';
-        td.userMine = false;
         td.userMark = true;
+        this._removeUserMineCount(td);
         this._removeIsCheck(td);
         
     } else if (td.userMark) {
-        
         td.innerHTML = '';
-        td.userMark = true;
+        td.userMark = false;
         this._removeIsCheck(td);
-        this._checkStopGame(td);
         
     } else {
-        
         td.innerHTML = '&#128163;';
-        td.userMine = true;
+        this._addUserMineCount(td);
         this._addIsCheck(td);
         
     }
@@ -205,12 +250,14 @@ class Sapper {
   }
   
   _checkStopGame(td) {
-      if (this.checkCount === this._countCells) {
-          
-      }
-      
-      this._tdMines.forEach((elem) => {
-          
-      });
+      if (this._userMineCount === this._countMine) {
+        this._tdMines.forEach((mine) => {
+            if (!mine.userMine) return;
+        });
+        setTimeout(() => {
+            alert('Поздравляю! Вы выиграли!');
+            this.restart();
+        }, 300);
+      }      
   }
 }
