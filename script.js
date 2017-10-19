@@ -161,60 +161,32 @@ class Sapper {
         target = target.parentNode;
       }
     }
-    
-    this._sapperTable.onmousedown = (e) => {
-        if (this._oneClick) {
-            let target = e.target;
-      
-            while (target !== this._sapperTable) {
-                if (target.tagName == 'TD' && target.dataset.count) {
-                  e.preventDefault();
-                  this._checkAroundCells(target, this._HighlightAround);
-                  return;
-                }
-                
-                target = target.parentNode;
-            }
-            this._oneClick = false;
-        } else {
-            this._oneClick = true;
-        }
-    }
-    this._sapperTable.onmouseup = (e) => {
-        this._oneClick = false;
-    }
   }
   
   _checkCell(td) {
     if (td.isMine || td.isCheck) return;
     
+    td.classList.add('opened');
+    this._addIsCheck(td);
+    
     if (td.count > 0) {
       td.dataset.count = td.count;
-      td.classList.add('opened');
       td.innerHTML = `<span>${td.count}</span>`;
       return;
     }
-    
-    td.classList.add('opened');
-    this._addIsCheck(td);
     
     this._checkAroundCells(td, this._checkCell);    
   }
   
     _HighlightAround(td) {
        if (!td.isCheck) {
-           td.backgroundColor = 'yellow';
+           td.backgroundColor = 'lightyellow';
        }
     }
   
   _addIsCheck(td) {
       td.isCheck = true;
       this._checkCount++;
-  }
-  
-  _removeIsCheck(td) {
-      td.isCheck = false;
-      this._checkCount--;
   }
   
   _addUserMineCount(td) {
@@ -229,21 +201,20 @@ class Sapper {
   }
   
   _setMark(td) {
+    if (td.isCheck) return;
+      
     if (td.userMine) {
         td.innerHTML = '&#63;';
         td.userMark = true;
         this._removeUserMineCount(td);
-        this._removeIsCheck(td);
         
     } else if (td.userMark) {
         td.innerHTML = '';
         td.userMark = false;
-        this._removeIsCheck(td);
         
     } else {
         td.innerHTML = '&#128163;';
         this._addUserMineCount(td);
-        this._addIsCheck(td);
         
     }
     
