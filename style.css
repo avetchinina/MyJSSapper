@@ -1,0 +1,37 @@
+.sapper {
+  border: 2px solid #eee;
+}
+
+.sapper td {
+  width: 25px;
+  height: 25px;
+  border: 1px solid gray;
+  background-color: #999;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.sapper td.opened {
+  background-color: #ccc;
+}
+
+.sapper td[data-count="1"] {
+  color: #6699ff;
+}
+.sapper td[data-count="2"] {
+  color: #0000cc;
+}
+.sapper td[data-count="3"] {
+  color: #663399;
+}
+.sapper td[data-count="4"] {
+  color: #339965;
+}
+.sapper td[data-count="5"] {
+  color: #cc6600;
+}
+.sapper td[data-count="6"] {
+  color: #ff66cc;
+}
